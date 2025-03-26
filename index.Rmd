@@ -1,10 +1,94 @@
 ---
-title: "JSC370 Final Project"
-author: "Your Name"
+title: "JSC370 Lab 12"
+author: "Richard Yin"
 output: 
     html_document:
         toc: TRUE
         toc_float: TRUE
 ---
 
-This is my JSC370 Final Project website.
+This is my JSC370 Lab 12 website.
+
+## Hello, World!
+
+Hello, world!
+
+### Subsection
+
+Here is a subsection with some dummy visualizations.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(DT)
+
+set.seed(123)
+data <- data.frame(
+  Name = paste("Name", 1:10),
+  Age = sample(18:70, 10, replace = TRUE),
+  Salary = round(runif(10, 30000, 120000), 2),
+  Department = sample(c("HR", "IT", "Finance", "Marketing"), 10, replace=TRUE)
+)
+
+datatable(data, 
+          options=list(pageLength=5, autoWidth=TRUE,
+                       columnDefs=list(list(className='dt-center', targets="_all"))),
+          caption="Dummy Data")
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(plotly)
+
+n <- 100
+data <- data.frame(x=rnorm(n, mean=50, sd=10), y=rnorm(n, mean=30, sd=5))
+
+scatter_plot <- plot_ly(data, x=~x, y=~y, mode='markers', type='scatter',
+                        marker=list(size=10, opacity=0.5)) |>
+  layout(title = 'Scatterplot of Dummy Data',
+         xaxis = list(title = 'X-axis'),
+         yaxis = list(title = 'Y-axis'))
+scatter_plot
+```
+
+## Lab 11 {.tabset}
+
+Here are some visualizations from lab 11.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+source("process_starbucks_data.R")
+```
+
+### Figure 1
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(plotly)
+p <- sb_locs_state |>
+  ggplot(aes(x=population, y=n_stores)) +
+    geom_point() +
+    theme_light() +
+    labs(title='Number of Starbucks vs Population of US States',
+         x='Population', y='Number of Starbucks')
+ggplotly(p)
+```
+
+### Figure 2
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Set up mapping details
+set_map_details <- list(
+  scope = 'usa',
+  projection = list(type = 'albers usa'),
+  showlakes = TRUE,
+  lakecolor = toRGB('steelblue')
+)
+
+# Make sure both maps are on the same color scale
+shadeLimit <- 125
+
+# Create hover text
+sb_locs_state$hover <- with(sb_locs_state, paste("Number of Starbucks: ", n_stores, '<br>', "State: ", state, '<br>', "Population: ", population))
+
+# Create the map
+map1 <- plot_geo(sb_locs_state, locationmode='USA-states') |>
+  add_trace(z=~n_stores, text=~hover, locations=~state, colors="Purples") |>
+  layout(title='Starbucks in the USA', geo=set_map_details)
+map1
+```
